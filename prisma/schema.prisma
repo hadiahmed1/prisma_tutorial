@@ -15,23 +15,42 @@ datasource db {
 }
 
 model User {
-  id      Int     @id @default(autoincrement())
-  name    String
-  email   String
-  isAdmin Boolean @default(false)
-  writtenPosts Post[] @relation("WrittenPost")
-  favouirtePosts Post[] @relation("FavouritePost")
+  id             String         @id @default(uuid())
+  age            Int
+  name           String
+  email          String
+  isAdmin        Boolean        @default(false)
+  writtenPosts   Post[]         @relation("WrittenPost")
+  favouirtePosts Post[]         @relation("FavouritePost")
+  UserPrefrence  UserPrefrence?
+
+  @@index([email])
+}
+
+model UserPrefrence {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean @default(false)
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  rating    Float
+  id            String   @id @default(uuid())
+  title         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  averageRating Float
   //mant to one
-  authorId Int
-  author User @relation("WrittenPost",fields: [authorId], references: [id])
+  authorId      String
+  author        User     @relation("WrittenPost", fields: [authorId], references: [id])
 
-  favoriteById Int?
-  favoritedBy User? @relation("FavouritePost",fields: [favoriteById], references: [id])
+  favoriteById String?
+  favoritedBy  User?      @relation("FavouritePost", fields: [favoriteById], references: [id])
+  categories   Category[]
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  posts Post[]
 }
